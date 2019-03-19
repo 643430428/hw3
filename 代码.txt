@@ -1,0 +1,172 @@
+【源代码】
+
+####第一题代码：
+%用MATLAB提供的函数imhist（）
+[Im,MAP]=imread('lena3.bmp');
+MAP(end:255,:)=0; 
+figure(1);
+imshow(Im,MAP);
+title('原始图像');
+figure(2) 
+imhist(Im,MAP);
+axis([0 255 0 5000]); 
+title('lena3直方图（调用imhist函数）');
+ 
+####第二题代码：
+[Im,MAP]=imread('woman.bmp');
+MAP(end:255,:)=0; 
+figure(1);
+imshow(Im,MAP);
+title('woman原始图像');
+imwrite(Im,MAP,'woman原始图像.bmp');
+figure(2)
+%imhist(Im,MAP);
+GP=zeros(1,256);  %原图灰度概率密度函数
+IM=ind2gray(Im,MAP); 
+[m,n]=size(IM); 
+for k=0:255               %计算原图各灰度级像素个数num 
+GP(k+1)=length(find(IM==k))/(m*n);
+end                       %绘制原图直方图 
+bar(0:255,GP);
+axis([0 256 0 0.05]);  
+title('woman原始图像直方图');  
+xlabel('灰度值');
+ylabel('像素的概率密度');
+figure(3);
+J=histeq(Im);
+imshow(J,MAP);
+title('woman直方图均衡结果');
+imwrite(J,MAP,'woman直方图均衡结果.bmp');
+figure(4);
+GP=zeros(1,256);  
+IM=ind2gray(J,MAP); 
+[m,n]=size(IM); 
+for k=0:255               
+GP(k+1)=length(find(IM==k))/(m*n);
+end                       
+bar(0:255,GP);
+axis([0 256 0 0.05]);  
+title('woman均衡化后的直方图');  
+xlabel('灰度值');
+ylabel('像素的概率密度');
+	
+####第三题代码：
+clear  
+[IM,MAP]=imread('woman2.bmp');%选定要处理的图像名称 
+MAP(end:255,:)=0; 
+I=ind2gray(IM,MAP); 
+[IM2,MAP2]=imread('woman.bmp');%选定要匹配的直方图 
+I2=ind2gray(IM2,MAP2); 
+hsp=imhist(I2,256);
+g=histeq(I,hsp);
+figure;
+subplot(1,2,1);
+imshow(IM,MAP);
+imwrite(IM,MAP,'woman2原图.bmp');
+title('woman2.bmp原图');
+subplot(1,2,2);
+imshow(g,MAP2);
+imwrite(g,MAP2,'woman2直方图匹配增强后的图像.bmp');
+title('直方图匹配增强后的图像');
+figure;
+subplot(3,1,1);
+imhist(I,MAP); 
+axis([0 256 0 100000]);
+title('原图woman2.bmp的直方图');
+subplot(3,1,2);
+imhist(I2,MAP2);
+axis([0 256 0 100000]);
+title(strcat('匹配图woman.bmp的直方图'));
+subplot(3,1,3);
+imhist(g,MAP);
+axis([0 256 0 100000]);
+title('增强后图像直方图');
+####第四题代码：
+[pic1,map1]=imread('elain.bmp');  
+pic11=ind2gray(pic1,map1);  
+[pic2,map2]=imread('lena.bmp');  
+pic21=ind2gray(pic2,map2);  
+
+x=round(mean(mean(pic11)));  
+y=round(mean(mean(pic21)));  
+	
+pic12=uint8(ones(518,518));  
+pic12=pic12*x;  
+pic13=uint8(zeros(512,512));  
+	
+for i=1:512  
+    for j=1:512  
+        pic12(i+3,j+3)=pic11(i,j);  
+    end  
+end  
+
+for i=4:515  
+	    for j=4:515  
+        a(1:7,1:7)=pic12(i-3:i+3,j-3:j+3);  
+	       c=histeq(a,256);  
+        pic13(i-3,j-3)=c(4,4);  
+    end  
+end  
+	
+imshow(pic13)  
+	
+	
+pic22=uint8(ones(518,518));  
+pic22=pic22*y;  
+pic23=uint8(zeros(512,512));  
+	
+for i=1:512  
+    for j=1:512  
+        pic22(i+3,j+3)=pic21(i,j);  
+    end  
+end  
+	
+for i=4:515  
+    for j=4:515  
+	       a(1:7,1:7)=pic22(i-3:i+3,j-3:j+3);  
+	       c=histeq(a,256);  
+	        pic23(i-3,j-3)=c(4,4);  
+    end  
+end  
+	
+	imshow(pic23)  
+	
+	####第五题代码：
+	
+	%自己编写的直方图阈值法分割图像
+clear  
+I=imread('woman.bmp');
+figure(1);
+imhist(I);
+title('woman的直方图');
+figure(2);
+subplot(1,2,1);
+imshow(I);
+title('woman原始图像');
+t1 =80;      %从直方图的峰谷处得阈值；
+[m,n]=size(I);
+I1=zeros(m,n); 
+for i=1:m     
+    for j=1:n    
+        if I(i,j)>t1        
+            I1(i,j)=1;     
+        else
+            I1(i,j)=0;   
+        end
+    end
+end
+subplot(1,2,2);
+imshow(I1);
+title('分割后的woman.bmp');
+%调用MATLAB中graythresh函数和im2bw函数
+clc
+clear all
+I=imread('woman.bmp');
+figure(3);
+subplot(1,2,1);
+imshow(I);
+title('woman原始图像');
+level=graythresh(I); 
+BW=im2bw(I,level);
+subplot(1,2,2);
+imshow(BW);
